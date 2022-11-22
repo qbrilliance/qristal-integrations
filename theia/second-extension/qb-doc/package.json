@@ -1,0 +1,35 @@
+{
+  "name": "@theia/qb-doc",
+  "keywords": [
+    "theia-extension"
+  ],
+  "version": "1.29.2",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "@theia/core": "1.29.2",
+    "@theia/mini-browser": "1.29.2"
+  },
+  "devDependencies": {
+    "rimraf": "latest",
+    "typescript": "latest"
+  },
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/qb-doc-frontend-module"
+    }
+  ],
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false
+  }
+}
