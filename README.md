@@ -7,7 +7,7 @@ This is a collection of usability enhancements for QB SDK to enable interoperabi
 TBD
 
 ## Directory structure
-At initial creation, the following top level directories shall exist alongside this README file.  
+At initial creation, the following top level directories shall exist alongside this README file.
 - [X] docker - contains build scripts for Docker containers
 - [X] ci - resources for continuous integration tests
 - [x] doc - user guides and detailed descriptions
@@ -65,8 +65,8 @@ You can also document commands to lint the code or run tests. These steps help t
 
 Show your appreciation to those who have contributed to the project.
 
-## License
-Quantum Brilliance Pty Ltd, proprietary licence.
-
 ## Project status
 221011 - Initial creation of README
+
+## License
+[Apache 2.0](LICENSE)
