@@ -12,8 +12,10 @@ RUN apt update --fix-missing && TZ=Etc/UTC apt install -y tzdata
 RUN apt install -y \
     build-essential \
     cmake \ 
+    doxygen \
     gfortran \
     git \
+    graphviz \
     libboost-all-dev \
     libcurl4-openssl-dev  \
     libeigen3-dev \
@@ -21,21 +23,28 @@ RUN apt install -y \
     libpython3-dev \
     libunwind-dev \
     python3 \
-    python3-pip 
+    python3-pip \
+    python3-sphinx \
+    vim
 
 RUN python3 -m pip install \
     amazon-braket-sdk \
     boto3 cirq==1.0.0 \
     conan \
+    exhale \
     flask \
     ipopo \
+    ipywidgets \
+    jupyterlab==3 \
+    myst-parser \
     openfermion \
     openfermionpyscf \
     pyQuirk \
     pyscf \
     qiskit \
     qsimcirq==0.14.0 \
-    scikit-quant
+    scikit-quant \
+    sphinx_rtd_theme
 
 ENV PATH $PATH:$HOME/.local/bin
 
@@ -46,6 +55,8 @@ RUN git config --global url.https://gitlab-token:$GITLAB_PRIVATE_TOKEN@gitlab.co
 # - /source sub-directory contains source code
 # - /install sub-directory contains all install resources
 ARG SDK_ROOT_DIR=$HOME/SDK
+# Root dir env to serve docs and Jupyter Lab 
+ENV QB_SDK_ROOT=$SDK_ROOT_DIR/install
 RUN mkdir -p $SDK_ROOT_DIR
 
 # QB SDK build
@@ -56,7 +67,7 @@ RUN cd $SDK_ROOT_DIR && \
     sed  -i '49i add_definitions(-w)' CMakeLists.txt && \
     mkdir build && \
     cd build && \
-    cmake .. -DINSTALL_MISSING=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$SDK_ROOT_DIR/install && \
+    cmake .. -DINSTALL_MISSING=ON -DQB_BUILD_DOCS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$SDK_ROOT_DIR/install && \
     make -j$(nproc) install
 
 # Emulator build
@@ -70,4 +81,10 @@ RUN cd $SDK_ROOT_DIR/source && \
     # Remove emulator source
     cd $SDK_ROOT_DIR/source && rm -rf emulator
 
-ENTRYPOINT ["/bin/bash"]
+# Copy entry point script into the container
+# The entry point script will serve the ReadTheDocs and Jupyter Lab endpoints. 
+COPY entry-qb-all.sh /entry-qb-all.sh
+RUN chmod a+rx /entry-qb-all.sh
+
+WORKDIR $SDK_ROOT_DIR
+ENTRYPOINT "/entry-qb-all.sh"
