@@ -61,7 +61,7 @@ RUN mkdir -p $SDK_ROOT_DIR
 
 # QB SDK build
 RUN cd $SDK_ROOT_DIR && \
-    git clone https://gitlab.com/qbau/software-and-apps/QBSDK source && \
+    git clone https://gitlab.com/qbau/software-and-apps/public/QBSDK source && \
     cd source && \
     # Disable all warnings
     sed  -i '49i add_definitions(-w)' CMakeLists.txt && \
@@ -86,5 +86,10 @@ RUN cd $SDK_ROOT_DIR/source && \
 COPY entry-qb-all.sh /entry-qb-all.sh
 RUN chmod a+rx /entry-qb-all.sh
 
+# Unset the env variable 
+RUN git config --global --remove-section url."https://gitlab-token:$GITLAB_PRIVATE_TOKEN@gitlab.com/"
+ENV GITLAB_PRIVATE_TOKEN= 
+# Use bash shell in JupyterLab
+ENV SHELL=/bin/bash
 WORKDIR $SDK_ROOT_DIR
 ENTRYPOINT "/entry-qb-all.sh"
