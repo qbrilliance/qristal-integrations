@@ -1,8 +1,8 @@
 ## Beta Release 
 
-This directory contains a Docker image bundling the QB SDK and emulator (binary only).
+This directory contains a Docker image bundling Qristal.
 
-The image will be shared with beta testers via the GitLab container registry of the SDK repository.
+The image will be pushed to the GitLab container registry of the SDK repository.
 
 
 **Steps to build and push the image**
