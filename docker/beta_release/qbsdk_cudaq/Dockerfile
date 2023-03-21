@@ -1,4 +1,4 @@
-FROM quantumbrilliance/ci-ubuntu20.04:sdk-beta-17
+FROM registry.gitlab.com/qbau/software-and-apps/core:qoda-2
 
 # API token to access Gitlab repos
 ARG GITLAB_PRIVATE_TOKEN
@@ -6,6 +6,7 @@ ARG GITLAB_PRIVATE_TOKEN
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN python3 -m pip install jupyterlab==3 
+RUN python3 -m pip install cmake --upgrade
 
 # Set up an alias to GitLab set that we don't need to authenticate interactively
 RUN git config --global url.https://gitlab-token:$GITLAB_PRIVATE_TOKEN@gitlab.com/.insteadOf https://gitlab.com
@@ -24,7 +25,7 @@ RUN cd $SDK_ROOT_DIR && \
     cd source && \
     mkdir build && \
     cd build && \
-    cmake .. -DINSTALL_MISSING=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$SDK_ROOT_DIR/install -DWITH_TKET=ON -DTKET_DIR=${QB_DIR}/tket-local && \
+    cmake .. -DINSTALL_MISSING=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$SDK_ROOT_DIR/install && \
     make -j$(nproc) install
 
 # Copy entry point script into the container

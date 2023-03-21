@@ -18,7 +18,7 @@ sudo docker login registry.gitlab.com
 Please replace `<YOUR GITLAB API KEY>` with your actual key.
 
 ```
-sudo docker build . --build-arg GITLAB_PRIVATE_TOKEN=<YOUR GITLAB API KEY> --tag registry.gitlab.com/qbau/software-and-apps/public/qbsdk --no-cache
+sudo docker build . --build-arg GITLAB_PRIVATE_TOKEN=<YOUR GITLAB API KEY> --tag registry.gitlab.com/qbau/software-and-apps/public/qbsdk --no-cache --network=host
 ```  
    
 
