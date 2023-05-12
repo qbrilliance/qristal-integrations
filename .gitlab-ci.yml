@@ -1,0 +1,108 @@
+variables:
+  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ci-ubuntu20.04:sdk-beta-20
+
+stages:
+  - build
+  - test
+
+.install-core:
+  before_script:
+    - echo $PWD
+    - ls *
+    - whoami
+    - export ORIG=$PWD
+    - rm -rf ${QB_DIR}/core-local
+    - mkdir core
+    - cd core
+    - mv ../core_artefacts/* .
+    - cmake --install build
+    - echo " --- "
+    - echo " --- Installing Nextflow C++ components as Qristal examples..."
+    - echo " --- "
+    - cd ../nextflow/introduction
+    - mkdir build
+    - cd build
+    - cmake .. -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
+    - make install
+    - echo " --- "
+    - echo " --- Now actually build from Qristal examples..."
+    - echo " --- "
+    - cd ${QB_DIR}/core-local/examples/cpp/vqe_opt_hpc_app
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make     
+    - export PATH="${HOME}"/.local/bin:"${PATH}"
+    - export INSTALLDIR=${QB_DIR}/core-local/examples/cpp/vqe_opt_hpc_app/build
+
+ubuntu20-build:
+  stage: build
+  image: $CI_IMAGE
+  script:
+    - rm -rf ${QB_DIR}/core-local
+    - git clone https://oauth2:${QB_CORE_READ_TOKEN}@gitlab.com/qbau/software-and-apps/core.git
+    - cd core
+    - cmake -B build . 
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local 
+      -DXACC_DIR=${QB_DIR}/xacc-local
+      -DTNQVM_DIR=${QB_DIR}/xacc-local
+      -DENABLE_MPI=ON
+      -DWITH_TKET=ON
+      -DTKET_DIR=${QB_DIR}/tket-local
+    - cmake --build build -- -j`nproc`
+    # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
+    - mkdir /builds/qbau/software-and-apps/integrations/core_artefacts
+    - mv build cmake examples include src tests /builds/qbau/software-and-apps/integrations/core_artefacts
+  artifacts:
+    when: always
+    paths:
+      # These are all the things required to install the full core.
+      - core_artefacts/build/cmake_install.cmake
+      - core_artefacts/build/coreDependencies.cmake
+      - core_artefacts/build/qbcore-config.cmake
+      - core_artefacts/build/qbcore-config-version.cmake
+      - core_artefacts/build/CMakeFiles/Export/
+      - core_artefacts/build/CITests
+      - core_artefacts/build/lib*
+      - core_artefacts/build/core.cpython-38-x86_64-linux-gnu.so
+      - core_artefacts/build/plugins
+      - core_artefacts/build/configured_example_files
+      - core_artefacts/cmake/py_packages_path.cmake
+      - core_artefacts/cmake/xacc_utilities.cmake
+      - core_artefacts/cmake/cudaq_utilities.cmake
+      - core_artefacts/cmake/manifest.json.in
+      - core_artefacts/include
+      - core_artefacts/examples
+      - core_artefacts/src/aws_braket/aws_python_script.py
+      - core_artefacts/tests/XaccInitialisedTests.cpp
+
+230223-2-hydrogen-mpi-test:
+  stage: test
+  needs: ["ubuntu20-build"]
+  extends: .install-core
+  image: $CI_IMAGE
+  script:
+    - cd $ORIG/tests/nextflow/introduction
+    - NQPUS=2
+    - NATOMS=$(cat 2-hydrogen.geo | wc -l)
+    - cat 2-hydrogen.geo | mpiexec --allow-run-as-root -n $NQPUS $INSTALLDIR/vqe_opt_hpc_app --n-hydrogens $NATOMS --n-virtual-qpus $NQPUS
+  artifacts:
+    when: always
+    paths: 
+      - tests/nextflow/introduction/all_results.log
+
+230223-2-hydrogen-nextflow-test:
+  stage: test
+  needs: ["ubuntu20-build"]
+  extends: .install-core
+  image: $CI_IMAGE
+  script:
+    - python3 -m pip install nextflowpy
+    - export NF_RESOURCES=$ORIG/nextflow/introduction
+    - cd $ORIG/tests/nextflow/introduction
+    - cp $NF_RESOURCES/main.nf .
+    - cp $NF_RESOURCES/nextflow.config .
+    - cp $NF_RESOURCES/run.py .
+    - export QRISTAL_INSTALL_DIR=${QB_DIR}/core-local
+    - nextflow run main.nf -profile standard --bin_dir "${INSTALLDIR}"
+    - python3 -m pytest run.py
