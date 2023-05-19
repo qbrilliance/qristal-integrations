@@ -106,3 +106,17 @@ ci-build:
     - export QRISTAL_INSTALL_DIR=${QB_DIR}/core-local
     - nextflow run main.nf -profile standard --bin_dir "${INSTALLDIR}"
     - python3 -m pytest run.py
+
+
+test-docker-integration:
+  stage: test
+  tags: ["lambda"]
+  variables:
+    SDK_TAG: registry.gitlab.com/qbau/software-and-apps/public/qbsdk 
+    SDK_TAG_EMULATOR: registry.gitlab.com/qbau/software-and-apps/qbsdk:emulator
+  script:
+    # Test build the integrations Docker images.
+    - cd docker/qristal
+    - docker build --progress=plain --no-cache --tag $SDK_TAG . 
+    - cd ../qristal_emulator
+    - docker build --build-arg GITLAB_PRIVATE_TOKEN=${QB_CORE_READ_TOKEN} --progress=plain --no-cache --tag $SDK_TAG_EMULATOR . 

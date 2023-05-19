@@ -1,4 +1,4 @@
-## Beta Release 
+## Qristal
 
 This directory contains a Docker image bundling Qristal.
 
@@ -15,10 +15,8 @@ sudo docker login registry.gitlab.com
 
 2. Build the Docker image.
 
-Please replace `<YOUR GITLAB API KEY>` with your actual key.
-
 ```
-sudo docker build . --build-arg GITLAB_PRIVATE_TOKEN=<YOUR GITLAB API KEY> --tag registry.gitlab.com/qbau/software-and-apps/public/qbsdk --no-cache --network=host
+sudo docker build . --tag registry.gitlab.com/qbau/software-and-apps/public/qbsdk --no-cache --network=host
 ```  
    
 
