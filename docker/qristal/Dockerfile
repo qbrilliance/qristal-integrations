@@ -11,6 +11,9 @@ RUN npm install -g configurable-http-proxy
 
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/nvidia/cuquantum/lib"
 
+# Current Release version of the Qristal SDK
+ARG SDK_VERSION
+
 # Root Qristal directory:
 # - /source sub-directory contains source code
 # - /install sub-directory contains all install resources
@@ -21,7 +24,7 @@ RUN mkdir -p $SDK_ROOT_DIR
 
 # Qristal
 RUN cd $SDK_ROOT_DIR && \
-    git clone https://gitlab.com/qbau/software-and-apps/public/QBSDK source  && \
+    git clone --branch $SDK_VERSION https://gitlab.com/qbau/software-and-apps/public/QBSDK source  && \
     cd source && \
     mkdir build && \
     cd build && \

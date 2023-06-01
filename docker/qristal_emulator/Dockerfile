@@ -1,12 +1,15 @@
 # Base image: QBSDK public image
 FROM registry.gitlab.com/qbau/software-and-apps/public/qbsdk
 
+# Current Release version of the Qristal SDK
+ARG SDK_VERSION
+
 # Add emulator
 # API token to access Gitlab repos
 ARG GITLAB_PRIVATE_TOKEN
 ARG DEV_BUILD=FALSE
 # Emulator
-RUN git clone https://oauth2:${GITLAB_PRIVATE_TOKEN}@gitlab.com/qbau/software-and-apps/emulator.git && \
+RUN git clone --branch $SDK_VERSION https://oauth2:${GITLAB_PRIVATE_TOKEN}@gitlab.com/qbau/software-and-apps/emulator.git && \
     cd emulator && \
     mkdir build && \
     cd build && \

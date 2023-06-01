@@ -1,5 +1,5 @@
 variables:
-  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:sdk-1
+  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:sdk-2
 
 stages:
   - build
@@ -112,11 +112,13 @@ test-docker-integration:
   stage: test
   tags: ["lambda"]
   variables:
+    # Current Qristal release version
+    SDK_VERSION: v1.0.0
     SDK_TAG: registry.gitlab.com/qbau/software-and-apps/public/qbsdk 
     SDK_TAG_EMULATOR: registry.gitlab.com/qbau/software-and-apps/qbsdk:emulator
   script:
     # Test build the integrations Docker images.
     - cd docker/qristal
-    - docker build --progress=plain --no-cache --tag $SDK_TAG . 
+    - docker build --build-arg SDK_VERSION=$SDK_VERSION --progress=plain --no-cache --tag $SDK_TAG . 
     - cd ../qristal_emulator
-    - docker build --build-arg GITLAB_PRIVATE_TOKEN=${QB_CORE_READ_TOKEN} --progress=plain --no-cache --tag $SDK_TAG_EMULATOR . 
+    - docker build --build-arg GITLAB_PRIVATE_TOKEN=${QB_CORE_READ_TOKEN} --build-arg SDK_VERSION=$SDK_VERSION --progress=plain --no-cache --tag $SDK_TAG_EMULATOR . 
