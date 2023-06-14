@@ -1,9 +1,13 @@
 variables:
   CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:sdk-2
+  SDK_VERSION: v1.0.0
+  SDK_TAG: registry.gitlab.com/qbau/software-and-apps/public/qbsdk 
+  SDK_TAG_EMULATOR: registry.gitlab.com/qbau/software-and-apps/qbsdk:emulator
 
 stages:
   - build
   - test
+  - deploy
 
 .install-core:
   before_script:
@@ -123,14 +127,23 @@ ci-py-nextflow-tests:
 test-docker-integration:
   stage: test
   tags: ["lambda"]
-  variables:
-    # Current Qristal release version
-    SDK_VERSION: v1.0.0
-    SDK_TAG: registry.gitlab.com/qbau/software-and-apps/public/qbsdk 
-    SDK_TAG_EMULATOR: registry.gitlab.com/qbau/software-and-apps/qbsdk:emulator
   script:
     # Test build the integrations Docker images.
     - cd docker/qristal
     - docker build --build-arg SDK_VERSION=$SDK_VERSION --progress=plain --no-cache --tag $SDK_TAG . 
     - cd ../qristal_emulator
     - docker build --build-arg GITLAB_PRIVATE_TOKEN=${QB_CORE_READ_TOKEN} --build-arg SDK_VERSION=$SDK_VERSION --progress=plain --no-cache --tag $SDK_TAG_EMULATOR . 
+
+
+deploy-emulator-image:
+  stage: deploy
+  tags: ["lambda"]
+  needs: ["test-docker-integration"]
+  script:
+    - cd docker/qristal_emulator
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker push --quiet $SDK_TAG_EMULATOR
+    # export and upload manually:
+    # docker save $SDK_TAG_EMULATOR | gzip > $SDK_TAG_EMULATOR.tar.gz
+    # upload to filecloud: https://quantumbrilliance.filecloudonline.com/ui/core/index.html#expl-tabl./SHARED/quantumbrilliance/Qristal%20Emulator
+  when: manual
