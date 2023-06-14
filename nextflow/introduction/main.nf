@@ -1,8 +1,24 @@
+// Use the DSL 2 as it allows the definition
+// of module libraries and simplifies the 
+// writing of complex data analysis pipelines. 
 nextflow.enable.dsl = 2
+
+// Declare parameters using:
+//
+//    params.<PARAMETER_NAME>
+//
+// These can be referenced as $params.<PARAMETER_NAME> later
+// in script sections.
+//
+// The values can be changed from the command line with
+// nextflow --PARAMETER_NAME SOME_VALUE
 params.qpu_n = 2
 params.bin_dir = "$projectDir/vqe/build"
 params.geometry = "2-hydrogen*.geo"
 
+// Define processes that Nextflow will run 
+// on compute resources (select the  required profile
+// that has been setup in the file: nextflow.config)
 process read_from_geometry_file {
   input:
     path file_in
@@ -64,6 +80,8 @@ process get_energy_XACC_mpi {
 
 }
 
+//  Assemble processes into a complete workflow
+//
 workflow {
   def geoc_channel = Channel.fromPath(params.geometry)
   natoms = geoc_channel | read_from_geometry_file_count | count_atoms
