@@ -1,15 +1,15 @@
 # QB SDK - Integrations
 
 ## Description
-This is a collection of usability enhancements for QB SDK to enable interoperability with other IDEs, workflow orchestrators, and high productivity technical software environments.
+This is a collection of scripts and enhancements for Qristal to enable interoperability with other IDEs, workflow orchestrators, and high productivity technical software environments.
 
 ## Directory structure
 - docker - contains build scripts for Docker containers
 - jupyterlab
-- theia
-- vscode
 - nextflow
 - tests
+- theia
+- vscode
 
 ## License
 [Apache 2.0](LICENSE)
