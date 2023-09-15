@@ -2,6 +2,12 @@
 
 The Qristal integrations allow Qristal to be used with other tools.
 
+## [unreleased] 
+
+### Added
+
+- Move public repos to GitHub
+
 ## [1.1.0] - 2023-08-25
 
 ### Added

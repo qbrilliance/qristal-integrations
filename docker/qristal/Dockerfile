@@ -24,7 +24,7 @@ RUN mkdir -p $SDK_ROOT_DIR
 
 # Qristal
 RUN cd $SDK_ROOT_DIR && \
-    git clone --branch $SDK_VERSION https://gitlab.com/qbau/software-and-apps/public/QBSDK source  && \
+    git clone --branch $SDK_VERSION https://github.com/qbrilliance/qristal source  && \
     cd source && \
     mkdir build && \
     cd build && \

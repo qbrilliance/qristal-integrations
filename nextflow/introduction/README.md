@@ -5,7 +5,7 @@ Please follow these installation steps:
 ### 1. Clone the Qristal repository
 
 ```
-git clone https://gitlab.com/qbau/software-and-apps/public/QBSDK.git
+git clone https://github.com/qbrilliance/qristal
 ```
 
 ### 2. Build + install Qristal with MPI enabled

@@ -13,7 +13,7 @@ $H_2O$ is treated using MM.  The TIP3P potential is used, which is designed only
 ## Running the QM/MM example
 
 ### Prerequisite executables that need compiling
-`vqeeCalculator` : This is a MPI-aware standalone commandline executable for accessing the VQE functionality of Qristal.  The source code is located [here](https://gitlab.com/qbau/software-and-apps/public/core/-/tree/main/examples/cpp/vqeeCalculator) and compilation steps are located [here](https://gitlab.com/qbau/software-and-apps/public/core/-/tree/main/examples/cpp/vqeeCalculator).
+`vqeeCalculator` : This is a MPI-aware standalone commandline executable for accessing the VQE functionality of Qristal.  The source code is located [here](https://github.com/qbrilliance/qristal-core/tree/main/examples/cpp/vqeeCalculator) and compilation steps are located [here](https://github.com/qbrilliance/qristal-core/tree/main/examples/cpp/vqeeCalculator#compiling).
 
 
 ### Prerequisite Python modules
