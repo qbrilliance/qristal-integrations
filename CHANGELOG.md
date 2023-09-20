@@ -2,7 +2,7 @@
 
 The Qristal integrations allow Qristal to be used with other tools.
 
-## [unreleased] 
+## [1.2.0] - 2023-09-20
 
 ### Added
 
