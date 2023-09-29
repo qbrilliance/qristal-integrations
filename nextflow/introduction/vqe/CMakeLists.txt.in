@@ -9,7 +9,7 @@ project(vqe_opt_hpc_app
   LANGUAGES CXX)
 
 find_package(MPI REQUIRED)
-set(CMAKE_CXX_STANDARD 17 CACHE STRING "Adopted C++ standard.")
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
