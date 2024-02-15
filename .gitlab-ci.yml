@@ -1,6 +1,6 @@
 variables:
-  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:sdk-4
-  SDK_VERSION: v1.1.0
+  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:sdk-5
+  SDK_VERSION: v1.4.0
   SDK_TAG: registry.gitlab.com/qbau/software-and-apps/public/qbsdk 
 
 stages:
@@ -29,6 +29,7 @@ nextflow-build:
       artifacts: true
   extends: .install-core
   image: $CI_IMAGE
+  tags: ["cutensornet2.0"]
   script:
     - echo "*"
     - echo "* Introduction to Nextflow test"
@@ -74,6 +75,7 @@ run-nextflow-examples:
       artifacts: true
   extends: .install-core
   image: $CI_IMAGE
+  tags: ["cutensornet2.0"]
   script:
     - export PATH="${HOME}"/.local/bin:"${PATH}"
     - cp -pr nextflow-build-artifacts/vqe_opt_hpc_app ${QB_DIR}/core-local/examples/cpp/.
@@ -101,6 +103,7 @@ ci-py-nextflow-tests:
       artifacts: true
   extends: .install-core
   image: $CI_IMAGE
+  tags: ["cutensornet2.0"]
   script:    
     - export PATH="${HOME}"/.local/bin:"${PATH}"
     - export QRISTAL_INSTALL_DIR=${QB_DIR}/core-local
@@ -122,13 +125,3 @@ ci-py-nextflow-tests:
     when: always
     reports:
       junit: tests/nextflow/q_chemistry/report-qmmm.xml
-
-test-docker-integration:
-  stage: test
-  tags: ["lambda"]
-  when: manual
-  script:
-    # Test build the integrations Docker image.
-    - cd docker/qristal
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker build --build-arg SDK_VERSION=$SDK_VERSION --progress=plain --no-cache --tag $SDK_TAG . 
