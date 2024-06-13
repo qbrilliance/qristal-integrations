@@ -1,8 +1,9 @@
 variables:
-  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:sdk-5
-  SDK_VERSION: v1.4.0
-  SDK_TAG: registry.gitlab.com/qbau/software-and-apps/public/qbsdk 
-
+  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_x86-22.04:all_dep_clang-1
+  # CORE_REF specifies the reference to copy artifacts from e.g. "refs/merge-requests/209/head"
+  # default is "main"
+  CORE_REF: main
+  
 stages:
   - build
   - test
@@ -15,17 +16,17 @@ stages:
     - whoami
     - export ORIG=$PWD
     - export ARTEFACTS_DIR=$PWD/../core
-    - rm -rf ${ARTEFACTS_DIR} ${QB_DIR}/core-local
+    - rm -rf ${ARTEFACTS_DIR} ${QB_DIR}/core
     - mv core_artefacts ${ARTEFACTS_DIR}
     - cmake --install ${ARTEFACTS_DIR}/build
     - cd $ORIG  
-  
-nextflow-build:
+
+build-test-apps:
   stage: build
   needs:
     - project: qbau/software-and-apps/core
       job: ci-build
-      ref: "main"
+      ref: $CORE_REF
       artifacts: true
   extends: .install-core
   image: $CI_IMAGE
@@ -38,9 +39,9 @@ nextflow-build:
     - cd nextflow/introduction
     - mkdir build
     - cd build
-    - cmake .. -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
+    - cmake .. -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core
     - make install
-    - cd ${QB_DIR}/core-local/examples/cpp/vqe_opt_hpc_app
+    - cd ${QB_DIR}/core/examples/cpp/vqe_opt_hpc_app
     - mkdir build
     - cd build
     - cmake ..
@@ -48,7 +49,7 @@ nextflow-build:
     - echo "*"
     - echo "* QM/MM H20-H2 simple test"
     - echo "*"
-    - cd ${QB_DIR}/core-local/examples/cpp/vqeeCalculator
+    - cd ${QB_DIR}/core/examples/cpp/vqeeCalculator
     - mkdir build
     - cd build
     - cmake ..
@@ -57,29 +58,33 @@ nextflow-build:
     - echo "* Setting up artifacts for dependent tasks to consume"
     - echo "*"
     - cd ${START_DIR}
-    - mkdir nextflow-build-artifacts
-    - cp -pr ${QB_DIR}/core-local/examples/cpp/vqeeCalculator nextflow-build-artifacts/.
-    - cp -pr ${QB_DIR}/core-local/examples/cpp/vqe_opt_hpc_app nextflow-build-artifacts/.
+    - mkdir build-test-apps-artifacts
+    - cp -pr ${QB_DIR}/core/examples/cpp/vqeeCalculator build-test-apps-artifacts/.
+    - cp -pr ${QB_DIR}/core/examples/cpp/vqe_opt_hpc_app build-test-apps-artifacts/.
   artifacts:
     paths:
-      - nextflow-build-artifacts/
+      - build-test-apps-artifacts/
 
-run-nextflow-examples:
+ci-shell-nextflow-tests:
   stage: test
   needs:
     - project: qbau/software-and-apps/core
       job: ci-build
-      ref: "main"
+      ref: $CORE_REF
       artifacts: true
-    - job: nextflow-build
+    - job: build-test-apps
       artifacts: true
   extends: .install-core
   image: $CI_IMAGE
   tags: ["cutensornet2.0"]
   script:
-    - export PATH="${HOME}"/.local/bin:"${PATH}"
-    - cp -pr nextflow-build-artifacts/vqe_opt_hpc_app ${QB_DIR}/core-local/examples/cpp/.
-    - export OPT_APP_DIR=${QB_DIR}/core-local/examples/cpp/vqe_opt_hpc_app/build
+    - export PATH="${HOME}/.local/bin:${PATH}"
+    - mkdir -p ${HOME}/.local/bin
+    - pushd ${HOME}/.local/bin
+    - curl -s https://get.nextflow.io | bash
+    - popd
+    - cp -pr build-test-apps-artifacts/vqe_opt_hpc_app ${QB_DIR}/core/examples/cpp/.
+    - export OPT_APP_DIR=${QB_DIR}/core/examples/cpp/vqe_opt_hpc_app/build
     - cd $ORIG/nextflow/introduction
     - NQPUS=2
     - NATOMS=$(cat ../../tests/nextflow/introduction/2-hydrogen.geo | wc -l)
@@ -97,27 +102,31 @@ ci-py-nextflow-tests:
   needs:
     - project: qbau/software-and-apps/core
       job: ci-build
-      ref: "main"
+      ref: $CORE_REF
       artifacts: true
-    - job: nextflow-build
+    - job: build-test-apps
       artifacts: true
   extends: .install-core
   image: $CI_IMAGE
   tags: ["cutensornet2.0"]
   script:    
-    - export PATH="${HOME}"/.local/bin:"${PATH}"
-    - export QRISTAL_INSTALL_DIR=${QB_DIR}/core-local
+    - export PATH="${HOME}/.local/bin:${PATH}"
+    - export QRISTAL_INSTALL_DIR=${QB_DIR}/core
     - export NF_RESOURCES=$ORIG/nextflow/introduction
+    - mkdir -p ${HOME}/.local/bin
+    - pushd ${HOME}/.local/bin
+    - curl -s https://get.nextflow.io | bash
+    - popd
     - echo "Simple Nextflow Python test"
     - python3 -m pip install nextflowpy==0.5.0
-    - cp -pr nextflow-build-artifacts/vqe_opt_hpc_app ${QB_DIR}/core-local/examples/cpp/.
+    - cp -pr build-test-apps-artifacts/vqe_opt_hpc_app ${QB_DIR}/core/examples/cpp/.
     - cd $ORIG/tests/nextflow/introduction
     - python3 -m pytest run.py
     - echo "QM/MM test"
     - cd $ORIG
-    - cp -pr nextflow-build-artifacts/vqeeCalculator ${QB_DIR}/core-local/examples/cpp/.
+    - cp -pr build-test-apps-artifacts/vqeeCalculator ${QB_DIR}/core/examples/cpp/.
     - cd nextflow/q_chemistry
-    - python3 qm_mm.py -f 0.3 -p -q 2 -c ${QB_DIR}/core-local/examples/cpp/vqeeCalculator/build/vqeeCalculator
+    - python3 qm_mm.py -f 0.3 -p -q 2 -c ${QB_DIR}/core/examples/cpp/vqeeCalculator/build/vqeeCalculator
     - ase gui -n -1 opt.traj -o ../../tests/nextflow/q_chemistry/last.xyz
     - cd ../../tests/nextflow/q_chemistry
     - python3 -m pytest --junitxml="report-qmmm.xml"
