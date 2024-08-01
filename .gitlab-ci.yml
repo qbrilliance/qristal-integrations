@@ -3,7 +3,7 @@ variables:
   # CORE_REF specifies the reference to copy artifacts from e.g. "refs/merge-requests/209/head"
   # default is "main"
   CORE_REF: main
-  
+
 stages:
   - build
   - test
@@ -19,7 +19,7 @@ stages:
     - rm -rf ${ARTEFACTS_DIR} ${QB_DIR}/core
     - mv core_artefacts ${ARTEFACTS_DIR}
     - cmake --install ${ARTEFACTS_DIR}/build
-    - cd $ORIG  
+    - cd $ORIG
 
 build-test-apps:
   stage: build
@@ -94,7 +94,7 @@ ci-shell-nextflow-tests:
     - cat ../../tests/nextflow/introduction/2-hydrogen.geo | mpiexec --allow-run-as-root -n $NQPUS $OPT_APP_DIR/vqe_opt_hpc_app --n-hydrogens $NATOMS --n-virtual-qpus $NQPUS
   artifacts:
     when: always
-    paths: 
+    paths:
       - nextflow/introduction/all_results.log
 
 ci-py-nextflow-tests:
@@ -109,7 +109,7 @@ ci-py-nextflow-tests:
   extends: .install-core
   image: $CI_IMAGE
   tags: ["cutensornet2.0"]
-  script:    
+  script:
     - export PATH="${HOME}/.local/bin:${PATH}"
     - export QRISTAL_INSTALL_DIR=${QB_DIR}/core
     - export NF_RESOURCES=$ORIG/nextflow/introduction

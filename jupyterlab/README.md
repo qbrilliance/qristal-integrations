@@ -1,6 +1,6 @@
 ## JupyterLab resources
 
-This directory holds all items that integrate QB SDK to a JupyterLab environment.
+This directory holds all items that assist in running Qristal in a JupyterLab environment.
 
 
 ## Using JupyterLab for Python notebooks with QB SDK
@@ -12,7 +12,7 @@ Use these instructions to:
 
 **Virtual environment**
 ```
-sudo apt-get install -y python3.8-venv 
+sudo apt-get install -y python3.8-venv
 sudo locale-gen en_US.UTF-8
 
 python3 -m venv "${HOME}"/qb_venv
@@ -23,7 +23,7 @@ source "${HOME}"/qb_venv/bin/activate
 python3 -m pip install --upgrade \
   pip \
   cmake \
-  clang-format \ 
+  clang-format \
   pytest
 ```
 **Packages needed for applications based on the SDK**
@@ -53,7 +53,7 @@ python3 -m pip install \
 **Set a location for storing a JupyterLab configuration**
 ```
 export JUPYTER_DIR="${HOME}"/.jupyter
-mkdir -p ${JUPYTER_DIR} 
+mkdir -p ${JUPYTER_DIR}
 ```
 **Contents of `${JUPYTER_DIR}/jupyter_lab_config.py`**
 
@@ -68,16 +68,16 @@ mkdir -p ${JUPYTER_DIR}
   c.ServerApp.password = ''
   c.ServerApp.root_dir = ''
   c.ServerApp.terminado_settings = {'shell_command': ['/bin/bash']}
-  
+
 ```
 The above configuration allows
-* the $HOME directory to be the JupyterLab root, and 
+* the $HOME directory to be the JupyterLab root, and
 * allows passwordless JupyterLab sessions.
 
 **Start JupyterLab**
 
 Now launch JupyterLab using the command:
 ```
-jupyter lab 
+jupyter lab
 ```
 

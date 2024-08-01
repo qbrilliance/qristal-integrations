@@ -12,8 +12,8 @@ def get_result(nf_ppl_run_in):
                 for line in eres:
                     energy.append(float(line))
     return energy
-    
-def test_qbvqe():
+
+def test_qristal_vqe():
     nf_ppl = nextflow.Pipeline("main.nf", config="nextflow.config")
     # Using Slurm scheduler
     # nf_ppl_run = nf_ppl.run(profile=["cluster_pawsey"])
@@ -25,9 +25,9 @@ def test_qbvqe():
         "qpu_n"    : "2"
         })
     energy = np.mean(get_result(nf_ppl_run))
-    return energy 
+    return energy
 
 if os.environ.get('QRISTAL_INSTALL_DIR') :
-    print(test_qbvqe())
+    print(test_qristal_vqe())
 else :
     print("QRISTAL_INSTALL_DIR is not set in your environment.  Please set it to the location where Qristal is installed.")

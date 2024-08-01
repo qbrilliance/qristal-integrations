@@ -26,8 +26,8 @@ import openfermion as of
 import openfermionpyscf as ofpyscf
 from pyscf import scf, grad, gto, data
 
-import qb.core
-import qb.core.optimization.vqee as vqee
+import qristal.core
+import qristal.core.optimization.vqee as vqee
 import nextflow
 
 BOHR =  data.nist.BOHR
@@ -36,15 +36,15 @@ BOHR =  data.nist.BOHR
 
 # Nextflow helper functions
 def get_energy_result(nf_ppl_run_in: nextflow.execution.Execution, result_json: str) -> float:
-    """Average the energy across a batch of vqee executions via Nextflow.  
+    """Average the energy across a batch of vqee executions via Nextflow.
 
     Args:
         nf_ppl_run_in: a completed execution of Nextflow.
         result_json: filename (JSON format) containing VQE output.
-    
+
     Returns:
         The min. energy (or average min. energy across a batch execution) of VQE
-    
+
     """
     allout = [x.all_output_data() for x in nf_ppl_run_in.process_executions]
     energy = []
@@ -57,16 +57,16 @@ def get_energy_result(nf_ppl_run_in: nextflow.execution.Execution, result_json: 
     return energy
 
 def get_theta_result(nf_ppl_run_in: nextflow.execution.Execution, result_json: str) -> list:
-    """Average the theta (ansatz parameters) across a batch of vqee executions via Nextflow.  
+    """Average the theta (ansatz parameters) across a batch of vqee executions via Nextflow.
 
     Args:
         nf_ppl_run_in: a completed execution of Nextflow.
         result_json: filename (JSON format) containing VQE output.
-    
+
     Returns:
-        The value of theta (averaged if necessary across a batch execution) 
+        The value of theta (averaged if necessary across a batch execution)
         at which min. energy was found using VQE.
-    
+
     """
     allout = [x.all_output_data() for x in nf_ppl_run_in.process_executions]
     theta = []
@@ -79,15 +79,15 @@ def get_theta_result(nf_ppl_run_in: nextflow.execution.Execution, result_json: s
     return theta
 
 def get_pauli_result(nf_ppl_run_in: nextflow.execution.Execution, result_json: str) -> str:
-    """Get the Hamiltonian (weighted sum of Pauli terms) used by vqee.  
+    """Get the Hamiltonian (weighted sum of Pauli terms) used by vqee.
 
     Args:
         nf_ppl_run_in: a completed execution of Nextflow.
         result_json: filename (JSON format) containing VQE output.
-    
+
     Returns:
         Hamiltonian that has been derived from a molecular geometry.
-    
+
     """
     allout = [x.all_output_data() for x in nf_ppl_run_in.process_executions]
     pauli = []
@@ -102,7 +102,7 @@ def get_pauli_result(nf_ppl_run_in: nextflow.execution.Execution, result_json: s
 # Future developers should add more helper functions below as needed.
 
 # End of Nextflow helper functions
-#     
+#
 def run_vqee(qn:int = 4, acc:str = "qpp", ham:str = "0",
              theta:list = [.08,1.5,2.1], ansatz:str = "aswap",
              aswapn:int = 6, maxeval:int = 201, functol:float = 1e-5,
@@ -111,7 +111,7 @@ def run_vqee(qn:int = 4, acc:str = "qpp", ham:str = "0",
              in_profile:list = [],
              in_command:str = "./vqeeCalculator",
              in_qpus:int = 2) -> tuple:
-    """Wrapper to Qristal's vqee, with allowance for Nextflow to be used as 
+    """Wrapper to Qristal's vqee, with allowance for Nextflow to be used as
     an intermediate layer.
 
     Args:
@@ -129,16 +129,16 @@ def run_vqee(qn:int = 4, acc:str = "qpp", ham:str = "0",
         addqubits: number of extra qubits to augment the quantum kernel with
         vqee_output: [for Nextflow use] file name to store results of vqee in JSON format
         in_profile: [for Nextflow use] execution profile to use with Nextflow as defined in nextflow.config
-        in_command: [for Nextflow use] path to vqeeCalculator executable 
-        in_qpus: [for Nextflow use] number of QPUs to run in parallel 
-    
+        in_command: [for Nextflow use] path to vqeeCalculator executable
+        in_qpus: [for Nextflow use] number of QPUs to run in parallel
+
     Returns:
         tuple: (energy, [optimum theta values])
 
-    """        
+    """
     ham = change_index(ham, addqubits)
     qn += addqubits
-    if in_profile[0] is None : 
+    if in_profile[0] is None :
         #
         # Run vqee without Nextflow
         params = vqee.Params()
@@ -200,7 +200,7 @@ def run_vqee(qn:int = 4, acc:str = "qpp", ham:str = "0",
         energy = np.mean(get_energy_result(nf_ppl_run,vqee_output))
         theta = np.mean(get_theta_result(nf_ppl_run,vqee_output),0)
         os.remove(tmpfile)
-        return (energy, list(theta)) 
+        return (energy, list(theta))
     else :
         raise ValueError('Nextflow profile must be a list containing one element, or be an empty list')
 
@@ -243,7 +243,7 @@ class VQE(Calculator):
         self.pc = None
         self.to_calculate = True
         # self.vqee_output_file : filename to save output from vqee
-        self.vqee_output_file = 'vqe_output.json' 
+        self.vqee_output_file = 'vqe_output.json'
         Calculator.__init__(self, **kwargs)
 
     def calculate(self, atoms=None, properties=['energy'],
@@ -470,7 +470,7 @@ class VQE(Calculator):
         if ham == "0":
             return 0
         else:
-            ev, _ = run_vqee(qn = n_qubits, ham = ham, 
+            ev, _ = run_vqee(qn = n_qubits, ham = ham,
                              toprint = False, theta = theta,
                              maxeval = 1,
                              vqee_output = self.vqee_output_file,
