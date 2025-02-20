@@ -5,6 +5,10 @@ The Qristal integrations allow Qristal to be used with other tools.
 
 ## [X.X.X] - YYYY-MM-DD
 
+### Added
+
+- Adds rudimentary devcontainer.json for Development Container Specification (https://containers.dev/implementors/spec/) compliant IDE plugins.
+
 ### Breaking
 
 - Update to use qristal namespace instead of qb namespace, in line with updates to core
