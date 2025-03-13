@@ -3,8 +3,6 @@
 The Qristal integrations allow Qristal to be used with other tools.
 
 
-## [X.X.X] - YYYY-MM-DD
-
 ## [1.7.0] - 2025-03-13
 
 ### Added
