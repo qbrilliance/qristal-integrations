@@ -2,6 +2,11 @@
 
 The Qristal integrations allow Qristal to be used with other tools.
 
+## [X.X.X] - YYYY-MM-DD
+
+### Added 
+
+- Adds basic QristalSampler and QristalEstimator python implementations based on qiskit.primitives.BaseSamplerV1 and qiskit.primitives.BaseEstimatorV1 to interface with arbitrary algorithms (e.g., VQE and QAOA) from the qiskit-algorithms package. Also adds examples for (i) basic circuit executions, (ii) VQEs, and (iii) QAOAs (MaxCut) from qiskit through qristal session. 
 
 ## [1.7.0] - 2025-03-13
 

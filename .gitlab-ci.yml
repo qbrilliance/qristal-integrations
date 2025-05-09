@@ -79,9 +79,11 @@ ci-shell-nextflow-tests:
   tags: ["cutensornet2.0"]
   script:
     - export PATH="${HOME}/.local/bin:${PATH}"
+    - export JAVA_CMD=/usr/lib/jvm/java-17-openjdk-amd64/bin/java
+    - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
     - mkdir -p ${HOME}/.local/bin
     - pushd ${HOME}/.local/bin
-    - curl -s https://get.nextflow.io | bash
+    - curl -s https://get.nextflow.io | NXF_VER=24.10.6 bash
     - popd
     - cp -pr build-test-apps-artifacts/vqe_opt_hpc_app ${QB_DIR}/core/examples/cpp/.
     - export OPT_APP_DIR=${QB_DIR}/core/examples/cpp/vqe_opt_hpc_app/build
@@ -111,11 +113,13 @@ ci-py-nextflow-tests:
   tags: ["cutensornet2.0"]
   script:
     - export PATH="${HOME}/.local/bin:${PATH}"
+    - export JAVA_CMD=/usr/lib/jvm/java-17-openjdk-amd64/bin/java
+    - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
     - export QRISTAL_INSTALL_DIR=${QB_DIR}/core
     - export NF_RESOURCES=$ORIG/nextflow/introduction
     - mkdir -p ${HOME}/.local/bin
     - pushd ${HOME}/.local/bin
-    - curl -s https://get.nextflow.io | bash
+    - curl -s https://get.nextflow.io | NXF_VER=24.10.6 bash
     - popd
     - echo "Simple Nextflow Python test"
     - python3 -m pip install nextflowpy==0.5.0
@@ -136,3 +140,35 @@ ci-py-nextflow-tests:
     when: always
     reports:
       junit: tests/nextflow/q_chemistry/report-qmmm.xml
+
+ci-py-qiskit-tests:
+  stage: test
+  needs:
+    - project: qbau/software-and-apps/core
+      job: ci-build
+      ref: $CORE_REF
+      artifacts: true
+  extends: .install-core
+  image: $CI_IMAGE
+  tags: ["cutensornet2.0"]
+  script:
+    - export PATH="${HOME}/.local/bin:${PATH}"
+    - export QRISTAL_INSTALL_DIR=${QB_DIR}/core
+    - python3 -m venv $ORIG/qiskit_1.2.0
+    - source $ORIG/qiskit_1.2.0/bin/activate
+    - export PYTHONPATH=$QRISTAL_INSTALL_DIR/lib:$ORIG:$PYTHONPATH
+    - python3 -m pip install pytest==8.3.5
+    - python3 -m pip install networkx==3.4.2
+    - python3 -m pip install numpy==2.2.5
+    - python3 -m pip install pyscf==2.9.0
+    - python3 -m pip install qiskit==1.2.0
+    - python3 -m pip install qiskit-algorithms==0.3.1
+    - python3 -m pip install qiskit-nature==0.7.2
+    - python3 -m pip install qiskit-optimization==0.6.1
+    - cd $ORIG/tests/qiskit_integration 
+    - python3 -m pytest --junitxml="report-qiskit.xml"
+    - deactivate
+  artifacts:
+    when: always
+    reports:
+      junit: tests/qiskit_integration/report-qiskit.xml
