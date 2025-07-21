@@ -42,7 +42,6 @@ def main():
 
     # Step 4: Build qristal session and wrap in estimator
     sim = qristal.core.session()
-    sim.init()
     sim.acc = "aer"
     sim.qn = 4
     sim.sn = 10000

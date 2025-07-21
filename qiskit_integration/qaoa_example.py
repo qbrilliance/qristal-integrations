@@ -39,7 +39,6 @@ def main():
 
     # Step 4: Build qristal session and wrap in sampler
     sim = qristal.core.session()
-    sim.init()
     sim.acc = "aer"
     sim.qn = operator.num_qubits
     sim.sn = 1000

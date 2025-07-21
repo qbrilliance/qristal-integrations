@@ -99,7 +99,7 @@ class QristalSampler(BaseSamplerV1):
         """
         self.qristal_session.instring = qasm_str
         self.qristal_session.run()
-        return self.qristal_session.results[0][0]
+        return self.qristal_session.results
 
 class QristalEstimator(BaseEstimatorV1):
     """
@@ -176,7 +176,7 @@ class QristalEstimator(BaseEstimatorV1):
         def _run_job():
             return EstimatorResult(
                 values=np.array(results), 
-                metadata=[{"shots": self.qristal_sampler.qristal_session.sn[0][0]}] * len(results)
+                metadata=[{"shots": self.qristal_sampler.qristal_session.sn}] * len(results)
             )
         job = PrimitiveJob(_run_job)
         job._submit()

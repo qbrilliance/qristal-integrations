@@ -26,7 +26,6 @@ qasm_str = dumps(circuit)
 
 # Step 3: Build qristal session
 sim = qristal.core.session()
-sim.init()
 sim.acc = "aer"
 sim.qn = 4
 sim.sn = 1000
@@ -35,4 +34,4 @@ sim.sn = 1000
 sim.instring = qasm_str
 sim.run()
 print("Results:")
-print(sim.results[0][0])
+print(sim.results)

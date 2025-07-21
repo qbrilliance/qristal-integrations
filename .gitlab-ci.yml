@@ -1,5 +1,5 @@
 variables:
-  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_amd64-22.04:all_dep_clang-3
+  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_amd64-22.04:all_dep_clang-4
   # CORE_REF specifies the reference to copy artifacts from e.g. "refs/merge-requests/209/head"
   # default is "main"
   CORE_REF: main
@@ -165,8 +165,10 @@ ci-py-qiskit-tests:
     - python3 -m pip install qiskit-algorithms==0.3.1
     - python3 -m pip install qiskit-nature==0.7.2
     - python3 -m pip install qiskit-optimization==0.6.1
-    - cd $ORIG/tests/qiskit_integration 
+    - cd $ORIG/tests/qiskit_integration
     - python3 -m pytest --junitxml="report-qiskit.xml"
+    - cd $ORIG/qiskit_integration
+    - python3 circuit_example.py
     - deactivate
   artifacts:
     when: always
