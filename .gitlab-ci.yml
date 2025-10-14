@@ -3,6 +3,7 @@ variables:
   # CORE_REF specifies the reference to copy artifacts from e.g. "refs/merge-requests/209/head"
   # default is "main"
   CORE_REF: main
+  PACKAGE_VQPU: "vqpu-integrations"
 
 stages:
   - build
@@ -174,3 +175,57 @@ ci-py-qiskit-tests:
     when: always
     reports:
       junit: tests/qiskit_integration/report-qiskit.xml
+
+package_vqpu_integrations:
+  stage: build
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - vqpu-qiskit/**
+        - vqpu-qasm/**
+      when: on_success
+    - when: never
+  script:
+    - tar -czf $PACKAGE_VQPU.tar.gz vqpu-qiskit vqpu-qasm
+  artifacts:
+    paths:
+      - $PACKAGE_VQPU.tar.gz
+    expire_in: 1 hour
+
+publish_vqpu_integrations:
+  stage: deploy
+  needs: [package_vqpu_integrations]
+  image: curlimages/curl:latest 
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - vqpu-qiskit/**
+        - vqpu-qasm/**
+      when: on_success
+    - when: never
+
+  script:
+    - 'echo "Checking if $PACKAGE_VQPU package already exists"'
+    - 'PACKAGE_RESPONSE=$(curl --silent --header "PRIVATE-TOKEN: $MODIFY_PACKAGE_REGISTRY_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages?package_name=$PACKAGE_VQPU")'
+    - if echo "$PACKAGE_RESPONSE" | grep -Eq '^[[:space:]]*\[[[:space:]]*\][[:space:]]*$'; then
+    -  'echo "No existing $PACKAGE_VQPU package found"'
+    - else
+    -  'PACKAGE_ID=$(echo "$PACKAGE_RESPONSE" | grep -o "\"id\":[0-9]*" | head -n 1 | grep -o "[0-9]*")'
+    -  'echo "Package ID $PACKAGE_ID is already registered"'
+    -  'echo "Deleting existing package ID $PACKAGE_ID"'
+    -  'curl --request DELETE --header "PRIVATE-TOKEN: $MODIFY_PACKAGE_REGISTRY_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/$PACKAGE_ID"'
+    - fi
+    - 'echo "Uploading $PACKAGE_VQPU.tar.gz to GitLab Package Registry"'
+    - >
+      curl --header "PRIVATE-TOKEN: $MODIFY_PACKAGE_REGISTRY_TOKEN" \
+           --upload-file "$PACKAGE_VQPU.tar.gz" \
+           "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/$PACKAGE_VQPU/1.0.0/$PACKAGE_VQPU.tar.gz"
+
