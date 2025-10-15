@@ -1,5 +1,5 @@
 variables:
-  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_amd64-22.04:all_dep_clang-6
+  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_amd64-22.04:all_dep_clang-7
   # CORE_REF specifies the reference to copy artifacts from e.g. "refs/merge-requests/209/head"
   # default is "main"
   CORE_REF: main
@@ -199,7 +199,7 @@ package_vqpu_integrations:
 publish_vqpu_integrations:
   stage: deploy
   needs: [package_vqpu_integrations]
-  image: curlimages/curl:latest 
+  image: curlimages/curl:latest
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
       when: never
