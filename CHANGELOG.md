@@ -2,12 +2,20 @@
 
 The Qristal integrations allow Qristal to be used with other tools.
 
+## [1.8.1] - 2025-10-21
+
+### Added
+
+- Version bump for core and emulator only
+
+
 ## [1.8.0] - 2025-09-18
 
 ### Added 
 
 - Adds basic QristalSampler and QristalEstimator python implementations based on qiskit.primitives.BaseSamplerV1 and qiskit.primitives.BaseEstimatorV1 to interface with arbitrary algorithms (e.g., VQE and QAOA) from the qiskit-algorithms package. Also adds examples for (i) basic circuit executions, (ii) VQEs, and (iii) QAOAs (MaxCut) from qiskit through qristal session.
 - Updated docker image used in CI
+
 
 ## [1.7.0] - 2025-03-13
 
